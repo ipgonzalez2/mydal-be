@@ -112,7 +112,8 @@ router.delete('/:id', function (req, res, next) {
 
 // REGISTER user
 router.post('/register', function (req, res) {
-  res.locals.connection.query('SELECT * FROM users WHERE username="' + req.body["data"].username + '"',
+  console.log(req.body.email);
+  res.locals.connection.query('SELECT * FROM USUARIO WHERE EMAIL="' + req.body.email + '"',
     function (error, results, fields) {
       if (error) {
         res.status(500);
@@ -132,7 +133,7 @@ router.post('/register', function (req, res) {
           });
         } else {
           // Is username not exists, we check the email
-          res.locals.connection.query('SELECT * FROM users WHERE email="' + req.body["data"].email + '"',
+          res.locals.connection.query('SELECT * FROM USUARIO WHERE email="' + req.body.email + '"',
             function (error, results, fields) {
               if (error) {
                 res.status(500);
@@ -152,14 +153,14 @@ router.post('/register', function (req, res) {
                   });
                 } else {
                   // If username and email not exist, we add the new user.
-                  res.locals.connection.query('INSERT INTO users (username, name, email, password) VALUES (?,?,?,?)',
-                    [req.body.data.username, req.body.data.name, req.body.data.email, req.body.data.password],
+                  res.locals.connection.query('INSERT INTO USUARIO(USERNAME, PASSWD, EMAIL) values (?,?,?)',
+                    [req.body.username, req.body.password, req.body.email],
                     function (error, results) {
                       if (error) {
                         res.status(500);
                         res.json({
                           "status": 500,
-                          "error": "Error on user insert",
+                          "error": error,
                           "response": null
                         });
                         //If there is error, we send the error in the error section with 500 status

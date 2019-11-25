@@ -26,8 +26,9 @@ const mysql = require("mysql");
 app.use(function (req, res, next) {
   res.locals.connection = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
-    database: 'areufree'
+    user: 'mydalUser',
+    password:'mydal19',
+    database: 'MYDAL'
   });
   res.locals.connection.connect();
   next();
@@ -47,9 +48,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/v1/users', usersRouter);
-app.use('/api/v1/polls', pollsRouter);
-app.use('/api/v1/gaps', gapsRouter);
-app.use('/api/v1/assignations', assignationsRouter);
+// app.use('/api/v1/polls', pollsRouter);
+// app.use('/api/v1/gaps', gapsRouter);
+// app.use('/api/v1/assignations', assignationsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -66,5 +67,8 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+ 
+app.listen(4000, () => console.log(`App listening on port 4000`))
 
 module.exports = app;
