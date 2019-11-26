@@ -183,9 +183,9 @@ router.post('/register', function (req, res) {
 
 // LOGIN user
 router.post('/login', function (req, res) {
-  let hashedPass = md5(req.body.password);
+  //let hashedPass = md5(req.body.password);
 
-  res.locals.connection.query('SELECT user_id, username, name, email FROM users WHERE username="' + req.body.username + '" AND password="' + hashedPass + '"',
+  res.locals.connection.query('SELECT ID_USUARIO, USERNAME, EMAIL FROM USUARIO WHERE EMAIL="' + req.body.email + '" AND PASSWD="' + req.body.password + '"',
     function (error, results, fields) {
       if (error) {
         res.status(500);
@@ -200,8 +200,10 @@ router.post('/login', function (req, res) {
         if (results.length == 1) {
 
           var claims = {
-            user_id: results[0]["user_id"],
-            username: results[0]["username"]
+            idUser: results[0]["ID_USUARIO"],
+            username: results[0]["USERNAME"],
+            email: results[0]["EMAIL"]
+
           }
 
           var jwt = nJwt.create(claims, secretKey);
