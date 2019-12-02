@@ -6,7 +6,7 @@ const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const pollsRouter = require('./routes/polls');
+const folderRouter = require('./routes/folder');
 const gapsRouter = require('./routes/gaps');
 const assignationsRouter = require('./routes/assignations');
 const cors = require('cors')
@@ -48,7 +48,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/v1/users', usersRouter);
-// app.use('/api/v1/polls', pollsRouter);
+app.use('/api/v1/folder', folderRouter);
 // app.use('/api/v1/gaps', gapsRouter);
 // app.use('/api/v1/assignations', assignationsRouter);
 
