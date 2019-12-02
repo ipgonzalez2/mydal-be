@@ -185,6 +185,9 @@ router.post('/register', function (req, res) {
 router.post('/login', function (req, res) {
   //let hashedPass = md5(req.body.password);
 
+  console.log(req.body.email);
+  console.log(req.body.password);
+
   res.locals.connection.query('SELECT ID_USUARIO, USERNAME, EMAIL FROM USUARIO WHERE EMAIL="' + req.body.email + '" AND PASSWD="' + req.body.password + '"',
     function (error, results, fields) {
       if (error) {

@@ -4,11 +4,11 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const indexRouter = require('./routes/index');
+// const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const folderRouter = require('./routes/folder');
-const gapsRouter = require('./routes/gaps');
-const assignationsRouter = require('./routes/assignations');
+// const gapsRouter = require('./routes/gaps');
+// const assignationsRouter = require('./routes/assignations');
 const cors = require('cors')
 const secureRandom = require('secure-random');
 nJwt = require('njwt');
@@ -45,8 +45,8 @@ app.use(express.urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
+ 
+// app.use('/', indexRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/folder', folderRouter);
 // app.use('/api/v1/gaps', gapsRouter);
