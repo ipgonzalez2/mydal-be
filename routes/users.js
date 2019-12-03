@@ -165,7 +165,15 @@ router.post('/register', function (req, res) {
                         });
                         //If there is error, we send the error in the error section with 500 status
                       } else {
-                        let dir = __dirname +
+                        //creamos la carpeta asociada al usuario.
+                        let mkdirp = require('mkdirp');
+                        var ruta ='./folders/'+req.body.email;
+                        
+                        mkdirp(ruta, function(err){
+                          if(err === null){
+                            console.log("el fichero se ha creado con exito")
+                          }
+                        } );
                         res.json({
                           "status": 201,
                           "error": null,
