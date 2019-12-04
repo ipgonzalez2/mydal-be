@@ -6,15 +6,15 @@ path = require('path'),
   multer = require('multer'),
   bodyParser = require('body-parser');
 
-// File upload settings  
-const PATH = './uploads';
+
 
 let storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, PATH);
+    let useremail = req["headers"]["useremail"];
+    let path = `./folders/${useremail}`;
+    cb(null, path);
   },
   filename: (req, file, cb) => {
-    console.log(file);
     cb(null, file.originalname);
   }
 });
@@ -71,8 +71,46 @@ router.get('/:id', function (req, res, next) {
   });
 });
 
-router.post('/', upload.single('image'), function (req, res) {
-
+router.post('/', upload.single('image'), function (req, res) {  
+              
+  const token = req["headers"]["authorization"].split(" ")[1];
+  //console.log(token);
+  nJwt.verify(token, secretKey, function (err, verifiedJwt) {
+    if (err) {
+      console.log(err)
+      res.status(401);
+      res.json({
+        "status": 401,
+        "error": err,
+        "response": null
+      });
+    } else {
+      res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, PADRE, FORMATO, COMPARTIR) values (?,?,?,?,?)',
+      [req.file.filename, req["headers"]["userid"], 1, req.file.mimetype, "NO"],
+        function (error, results, fields) {
+            console.log(error);
+          if (error) {
+            res.status(500);
+            res.json({
+              "status": 500,
+              "error": error,
+              "response": null
+            });
+            //If there is error, we send the error in the error section with 500 status
+          } else {
+            res.json({
+              "status": 200,
+              "error": null,
+              "response": results
+            });
+            //If there is no error, all is good and response is 200OK.
+          }
+        });
+    }
+  });
+          
+              
+/*
   console.log(req.file);
   if (!req.file) {
     console.log("No file is available!");
@@ -85,7 +123,7 @@ router.post('/', upload.single('image'), function (req, res) {
     return res.send({
       success: true
     })
-  }
+  }*/
 });
 
 
