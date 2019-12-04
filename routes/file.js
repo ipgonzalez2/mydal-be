@@ -1,6 +1,28 @@
 var express = require('express');
 var router = express.Router();
 
+path = require('path'),
+  cors = require('cors'),
+  multer = require('multer'),
+  bodyParser = require('body-parser');
+
+// File upload settings  
+const PATH = './uploads';
+
+let storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, PATH);
+  },
+  filename: (req, file, cb) => {
+    console.log(file);
+    cb(null, file.originalname);
+  }
+});
+
+let upload = multer({
+  storage: storage
+});
+
 
 // GET polls listing
 
@@ -47,6 +69,23 @@ router.get('/:id', function (req, res, next) {
         });
     }
   });
+});
+
+router.post('/', upload.single('image'), function (req, res) {
+
+  console.log(req.file);
+  if (!req.file) {
+    console.log("No file is available!");
+    return res.send({
+      success: false
+    });
+
+  } else {
+    console.log('File is available!');
+    return res.send({
+      success: true
+    })
+  }
 });
 
 
