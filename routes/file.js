@@ -71,8 +71,7 @@ router.get('/:id', function (req, res, next) {
   });
 });
 
-router.post('/', upload.single('image'), function (req, res) {  
-              
+router.post('/', upload.single('image'), function (req, res) {            
   const token = req["headers"]["authorization"].split(" ")[1];
   //console.log(token);
   nJwt.verify(token, secretKey, function (err, verifiedJwt) {
@@ -86,7 +85,7 @@ router.post('/', upload.single('image'), function (req, res) {
       });
     } else {
       res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, PADRE, FORMATO, COMPARTIR) values (?,?,?,?,?)',
-      [req.file.filename, req["headers"]["userid"], 1, req.file.mimetype, "NO"],
+      [req.file.filename, req["headers"]["userid"], req["headers"]["folderid"], req.file.mimetype, "NO"],
         function (error, results, fields) {
             console.log(error);
           if (error) {
