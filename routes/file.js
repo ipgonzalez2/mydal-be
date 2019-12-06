@@ -83,11 +83,14 @@ router.post('/', upload.single('image'), function (req, res) {
         "error": err,
         "response": null
       });
-    } else {
-      res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, PADRE, FORMATO, COMPARTIR) values (?,?,?,?,?)',
-      [req.file.filename, req["headers"]["userid"], req["headers"]["folderid"], req.file.mimetype, "NO"],
-        function (error, results, fields) {
-            console.log(error);
+    } else
+      if(req["headers"]["folderid"] === 'null'){
+        console.log("PADRE"+ req["headers"]["folderid"]);
+        console.log("ENTRA POR NULL");
+        res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, FORMATO, COMPARTIR) values (?,?, ?, ?)',
+        [req.file.originalname, verifiedJwt["body"]["idUser"], req.file.mimetype, "NO"],
+        function (error, results) {
+          
           if (error) {
             res.status(500);
             res.json({
@@ -98,31 +101,50 @@ router.post('/', upload.single('image'), function (req, res) {
             //If there is error, we send the error in the error section with 500 status
           } else {
             res.json({
-              "status": 200,
+              "status": 201,
               "error": null,
               "response": results
             });
+            console.log("creada");
             //If there is no error, all is good and response is 200OK.
           }
         });
-    }
+      }else{
+        res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, PADRE, FORMATO, COMPARTIR) values (?,?,?,?,?)',
+        [req.file.originalname, verifiedJwt["body"]["idUser"], req["headers"]["folderid"], req.file.mimetype, "NO"],
+        function (error, results) {
+          
+          if (error) {
+            res.status(500);
+            res.json({
+              "status": 500,
+              "error": error,
+              "response": null
+            });
+            //If there is error, we send the error in the error section with 500 status
+          } else {
+            res.json({
+              "status": 201,
+              "error": null,
+              "response": results
+            });
+            console.log("creada");
+            //If there is no error, all is good and response is 200OK.
+          }
+        });
+      }
+
+    
   });
           
-              
-/*
-  console.log(req.file);
-  if (!req.file) {
-    console.log("No file is available!");
-    return res.send({
-      success: false
-    });
 
-  } else {
-    console.log('File is available!');
-    return res.send({
-      success: true
-    })
-  }*/
+});
+
+router.get('/download/:name', function(req, res){
+  console.log(req["headers"]);
+  var file = `./folders/`+ req["headers"]["useremail"] + '/' +req.params.name;
+  console.log(file);
+  res.download(file, req.params.name);
 });
 
 
