@@ -141,12 +141,24 @@ router.post('/', upload.single('image'), function (req, res) {
 });
 
 router.get('/download/:name', function(req, res){
-  console.log(req["headers"]);
-  var file = `./folders/`+ req["headers"]["useremail"] + '/' +req.params.name;
-  console.log(file);
-  res.download(file, req.params.name);
+  const token = req["headers"]["authorization"].split(" ")[1];
+  //console.log(token);
+  nJwt.verify(token, secretKey, function (err, verifiedJwt) {
+    if (err) {
+      console.log(err)
+      res.status(401);
+      res.json({
+        "status": 401,
+        "error": err,
+        "response": null
+      });
+    } else {
+       
+      var file = `./folders/`+ req["headers"]["useremail"] + '/' +req.params.name;
+      res.download(file, req.params.name);
+                
+    }
 });
-
-
+});
 
 module.exports = router;
