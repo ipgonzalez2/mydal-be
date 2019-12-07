@@ -115,5 +115,48 @@ router.post('/create/:id', function (req, res, next) {
 });
 
 
+router.post('/delete/', function (req, res, next) {
+  const token = req["headers"]["authorization"].split(" ")[1];
+  
+// console.log(token);
+  nJwt.verify(token, secretKey, function (err, verifiedJwt) {
+    if (err) {
+      console.log(err)
+      res.status(401);
+      res.json({
+        "status": 401,
+        "error": err,
+        "response": null
+      });
+    } else {
+        res.locals.connection.query('DELETE FROM CARPETA WHERE ID_CARPETA = ? AND PROPIETARIO =? ',
+        [req.body.ID_CARPETA, verifiedJwt["body"]["idUser"]],
+        function (error, results) {
+          
+          if (error) {
+            res.status(500);
+            res.json({
+              "status": 500,
+              "error": error,
+              "response": null
+            });
+            //If there is error, we send the error in the error section with 500 status
+          } else {
+            res.json({
+              "status": 201,
+              "error": null,
+              "response": results
+            });
+            console.log("creada");
+            //If there is no error, all is good and response is 200OK.
+          }
+        });
+      
+
+    }
+  });
+});
+
+
 
 module.exports = router;
