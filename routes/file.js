@@ -300,4 +300,51 @@ router.get('/share/:id', function(req, res){
 });
 });
 
+
+router.post('/delete/', function (req, res, next) {
+  console.log(req.body);
+  const token = req["headers"]["authorization"].split(" ")[1];
+  
+// console.log(token);
+  nJwt.verify(token, secretKey, function (err, verifiedJwt) {
+    if (err) {
+      console.log(err)
+      res.status(401);
+      res.json({
+        "status": 401,
+        "error": err,
+        "response": null
+      });
+    } else {
+        res.locals.connection.query('DELETE FROM FICHERO WHERE ID_FICHERO = ? AND PROPIETARIO =? ',
+        [req.body.ID_FICHERO, verifiedJwt["body"]["idUser"]],
+        function (error, results) {
+          
+          if (error) {
+            res.status(500);
+            res.json({
+              "status": 500,
+              "error": error,
+              "response": null
+            });
+            //If there is error, we send the error in the error section with 500 status
+          } else {
+            filePath = `./folders/`+ verifiedJwt["body"]["email"] + '/(' + req.body.ID_FICHERO + ')' + req.body.NOMBRE;
+            console.log(filePath);
+            fs.unlinkSync(filePath)
+            res.json({
+              "status": 200,
+              "error": null,
+              "response": results
+            });
+            console.log("borrado");
+            //If there is no error, all is good and response is 200OK.
+          }
+        });
+      
+
+    }
+  });
+});
+
 module.exports = router;
