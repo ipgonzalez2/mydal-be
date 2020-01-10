@@ -4,7 +4,7 @@ var router = express.Router();
 
 // GET polls listing
 
-router.get('/:id', function (req, res, next) {
+router.get('/showall/:id', function (req, res, next) {
   const token = req["headers"]["authorization"].split(" ")[1];
 // console.log(token);
   nJwt.verify(token, secretKey, function (err, verifiedJwt) {
@@ -47,7 +47,7 @@ router.get('/:id', function (req, res, next) {
   });
 });
 
-router.post('/create/:id', function (req, res, next) {
+router.post('/:id', function (req, res, next) {
   const token = req["headers"]["authorization"].split(" ")[1];
   
 // console.log(token);
@@ -115,7 +115,7 @@ router.post('/create/:id', function (req, res, next) {
 });
 
 
-router.post('/delete/', function (req, res, next) {
+router.delete('/:id', function (req, res, next) {
   const token = req["headers"]["authorization"].split(" ")[1];
   
 // console.log(token);
@@ -129,8 +129,10 @@ router.post('/delete/', function (req, res, next) {
         "response": null
       });
     } else {
+      console.log("noelia");
+      console.log(req.params.folder)
         res.locals.connection.query('DELETE FROM CARPETA WHERE ID_CARPETA = ? AND PROPIETARIO =? ',
-        [req.body.ID_CARPETA, verifiedJwt["body"]["idUser"]],
+        [req.params.id, verifiedJwt["body"]["idUser"]],
         function (error, results) {
           
           if (error) {
