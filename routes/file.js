@@ -193,7 +193,7 @@ router.get('/download/:id', function(req, res){
 });
 });
 
-router.post('/share/:id', function(req, res){
+router.post('/shared/:id', function(req, res){
   const token = req["headers"]["authorization"].split(" ")[1];
   //console.log(token);
   nJwt.verify(token, secretKey, function (err, verifiedJwt) {
@@ -232,7 +232,7 @@ router.post('/share/:id', function(req, res){
             res.json({
               "status": 200,
               "error": null,
-              "response": 'localhost:4000/api/v1/file/share/'+req.params.id
+              "response": 'localhost:4000/api/v1/file/shared/'+req.params.id
             });
             //If there is no error, all is good and response is 200OK.
           }
@@ -250,7 +250,7 @@ router.post('/share/:id', function(req, res){
   });
 });
 
-router.get('/share/:id', function(req, res){
+router.get('/shared/:id', function(req, res){
   
       res.locals.connection.query('SELECT nombre,propietario from fichero where compartir="' + "SI" + '" and id_fichero='+ req.params.id,
       function (error, results, fields) {
@@ -301,7 +301,7 @@ router.get('/share/:id', function(req, res){
 });
 
 
-router.post('/delete/', function (req, res, next) {
+router.delete('/:id/:nombre', function (req, res, next) {
   console.log(req.body);
   const token = req["headers"]["authorization"].split(" ")[1];
   
@@ -317,7 +317,7 @@ router.post('/delete/', function (req, res, next) {
       });
     } else {
         res.locals.connection.query('DELETE FROM FICHERO WHERE ID_FICHERO = ? AND PROPIETARIO =? ',
-        [req.body.ID_FICHERO, verifiedJwt["body"]["idUser"]],
+        [req.params.id, verifiedJwt["body"]["idUser"]],
         function (error, results) {
           
           if (error) {
@@ -329,7 +329,7 @@ router.post('/delete/', function (req, res, next) {
             });
             //If there is error, we send the error in the error section with 500 status
           } else {
-            filePath = `./folders/`+ verifiedJwt["body"]["email"] + '/(' + req.body.ID_FICHERO + ')' + req.body.NOMBRE;
+            filePath = `./folders/`+ verifiedJwt["body"]["email"] + '/(' + req.params.id + ')' + req.params.nombre;
             console.log(filePath);
             fs.unlinkSync(filePath)
             res.json({
