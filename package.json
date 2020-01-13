@@ -24,7 +24,8 @@
     "njwt": "^0.4.0",
     "nodemon": "^1.18.6",
     "pug": "2.0.0-beta11",
-    "secure-random": "^1.1.1"
+    "secure-random": "^1.1.1",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "nodemon": "1.11.0"

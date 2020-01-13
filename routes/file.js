@@ -7,6 +7,7 @@ path = require('path'),
   cors = require('cors'),
   multer = require('multer'),
   bodyParser = require('body-parser');
+  const uuidv1 = require('uuid/v1');
 
 
 
@@ -75,6 +76,7 @@ router.get('/:id', function (req, res, next) {
 
 router.post('/', upload.single('image'), function (req, res) {            
   const token = req["headers"]["authorization"].split(" ")[1];
+  let uuid = uuidv1().replace(/-/g,'');
   //console.log(token);
   nJwt.verify(token, secretKey, function (err, verifiedJwt) {
     if (err) {
@@ -87,8 +89,8 @@ router.post('/', upload.single('image'), function (req, res) {
       });
     } else
       if(req["headers"]["folderid"] === 'null'){
-        res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, FORMATO, COMPARTIR) values (?,?, ?, ?)',
-        [req.file.originalname, verifiedJwt["body"]["idUser"], req.file.mimetype, "NO"],
+        res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, FORMATO, COMPARTIR,UUID) values (?,?, ?, ?,?)',
+        [req.file.originalname, verifiedJwt["body"]["idUser"], req.file.mimetype, "NO", uuid],
         function (error, results) {
           console.log(results.insertId);
           console.log(req.file.url);
@@ -114,8 +116,8 @@ router.post('/', upload.single('image'), function (req, res) {
           }
         });
       }else{
-        res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, PADRE, FORMATO, COMPARTIR) values (?,?,?,?,?)',
-        [req.file.originalname, verifiedJwt["body"]["idUser"], req["headers"]["folderid"], req.file.mimetype, "NO"],
+        res.locals.connection.query('INSERT INTO FICHERO(NOMBRE, PROPIETARIO, PADRE, FORMATO, COMPARTIR, UUID) values (?,?,?,?,?,?)',
+        [req.file.originalname, verifiedJwt["body"]["idUser"], req["headers"]["folderid"], req.file.mimetype, "NO", uuid],
         function (error, results) {
           
           if (error) {
@@ -206,7 +208,7 @@ router.post('/shared/:id', function(req, res){
         "response": null
       });
     } else { 
-      res.locals.connection.query('SELECT NOMBRE from fichero where id_fichero='+ req.params.id + ' AND PROPIETARIO=' + verifiedJwt.body.idUser,
+      res.locals.connection.query('SELECT NOMBRE,UUID from fichero where id_fichero='+ req.params.id + ' AND PROPIETARIO=' + verifiedJwt.body.idUser,
         function (error, results, fields) {
   
           if (error) {
@@ -218,6 +220,7 @@ router.post('/shared/:id', function(req, res){
             });
             //If there is error, we send the error in the error section with 500 status
           } else  if(results.length === 1) {
+            let uuid = results[0]["UUID"];
             res.locals.connection.query('UPDATE fichero SET compartir="' + "SI" + '" where id_fichero='+ req.params.id,
             function (error, results, fields) {
             if (error) {
@@ -232,7 +235,7 @@ router.post('/shared/:id', function(req, res){
             res.json({
               "status": 200,
               "error": null,
-              "response": 'localhost:4000/api/v1/file/shared/'+req.params.id
+              "response": 'localhost:4000/api/v1/file/shared/'+uuid
             });
             //If there is no error, all is good and response is 200OK.
           }
@@ -252,7 +255,7 @@ router.post('/shared/:id', function(req, res){
 
 router.get('/shared/:id', function(req, res){
   
-      res.locals.connection.query('SELECT nombre,propietario from fichero where compartir="' + "SI" + '" and id_fichero='+ req.params.id,
+      res.locals.connection.query('SELECT nombre,propietario,id_fichero from fichero where compartir="' + "SI" + '" and uuid="' + req.params.id + '"',
       function (error, results, fields) {
         if (error) {
           res.status(500);
@@ -264,6 +267,7 @@ router.get('/shared/:id', function(req, res){
           //If there is error, we send the error in the error section with 500 status
         } else  if(results.length === 1) {
           nombre = results[0]["nombre"];
+          id = results[0]["id_fichero"];
           propietario = results[0]["propietario"];
           res.locals.connection.query('SELECT email from usuario where id_usuario='+ propietario,
           function (error, results, fields) {
@@ -277,7 +281,7 @@ router.get('/shared/:id', function(req, res){
           //If there is error, we send the error in the error section with 500 status
           } else {
            email = results[0]["email"]; 
-           var file = `./folders/`+ email + '/(' + req.params.id + ')' + nombre;
+           var file = `./folders/`+ email + '/(' + id + ')' + nombre;
            console.log(file);
            
           res.download(file, nombre);
